@@ -1,0 +1,8 @@
+server:
+  port: 8085
+
+general-bot:
+  settings:
+    name: 'roboStatic_bot'
+    token: '1526625239:AAF8e3-Ye9F08WPzxKO-9_SUSoSluf__770'
+    chat-id: 774155059
