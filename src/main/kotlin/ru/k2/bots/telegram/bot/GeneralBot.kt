@@ -2,13 +2,17 @@ package ru.k2.bots.telegram.bot
 
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.k2.bots.telegram.config.TelegramBotProperties
-import java.time.Instant
+import ru.k2.bots.telegram.service.CheatSheetJavaCollectionService
+import java.util.regex.Pattern
 
 @Component
-class GeneralBot(val properties: TelegramBotProperties) : TelegramLongPollingBot() {
+class GeneralBot(private val properties: TelegramBotProperties,
+                 private val collectionService: CheatSheetJavaCollectionService) : TelegramLongPollingBot() {
 
     override fun getBotToken(): String {
         return properties.token
@@ -19,42 +23,56 @@ class GeneralBot(val properties: TelegramBotProperties) : TelegramLongPollingBot
     }
 
     override fun onUpdateReceived(update: Update?) {
-        val message = SendMessage()
-
         if (update != null) {
             if (update.hasMessage()) {
-                val chaId = update.message.chatId.toString()
-
-                message.chatId = chaId
-                message.text = "Your chatId is $chaId"
-
-                execute(message)
+                messageHandler(update)
+            } else if (update.hasCallbackQuery()) {
+                callbackHandler(update)
             }
         }
     }
 
-    fun success(availableSlot: Int, s: String?) {
-        val message = SendMessage()
-
-        message.chatId = properties.chatId
-        message.text = "Tesxt"
-
-        execute(message)
+    private fun callbackHandler(update: Update) {
+        when (messageParsing("(/\\w*)", update.callbackQuery.data.plus("/"))) {
+            "/collection" -> execute(collectionService.callbackHandler(update))
+            "/result" -> success(update)
+            else -> execute(EditMessageText()) //todo продумать
+        }
     }
 
-    fun error() {
-        val message = SendMessage()
-        message.chatId = properties.chatId
-        message.text = "Text"
-
-        execute(message)
+    private fun messageHandler(update: Update) {
+        when (messageParsing("(/\\w*)", update.message.text.plus("/"))) {
+            "/collection" -> execute(collectionService.messageHandler(update))
+            else -> failure(update)
+        }
     }
 
-    fun failure() {
+    private fun failure(update: Update): SendMessage {
         val message = SendMessage()
-        message.chatId = properties.chatId
-        message.text = "Text"
+        message.chatId = update.message.chatId.toString()
+        message.text = "Команда \"${update.message.text}\" не поддерживается"
+        message.replyToMessageId = update.message.messageId
 
-        execute(message)
+        return message
+    }
+
+     private fun success(update: Update) {
+         when (messageParsing("/result(/\\w*)", update.callbackQuery.data.plus("/"))) {
+             "/collection" -> execute(collectionService.successHandler(update))
+             else -> failure(update)
+         }
+         execute(collectionService.tryAgain(update))
+    }
+
+    private fun callbackFailure(update: Update): AnswerCallbackQuery {
+        return AnswerCallbackQuery()
+    }
+
+    private fun messageParsing(regex: String, message: String): String {
+        val pattern = Pattern.compile(regex, Pattern.MULTILINE)
+        val matcher = pattern.matcher(message)
+        matcher.find()
+
+        return matcher.group(1)
     }
 }
