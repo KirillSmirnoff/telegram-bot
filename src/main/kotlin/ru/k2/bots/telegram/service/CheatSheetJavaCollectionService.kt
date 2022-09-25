@@ -155,7 +155,6 @@ class CheatSheetJavaCollectionService: Handler {
                 .build()
     }
 
-
     private fun valueNotDuplicatePrimaryTaskSearchAndNotOrder(update: Update): AnswerCallbackQuery {
         val answerCallbackQuery = AnswerCallbackQuery()
         answerCallbackQuery.callbackQueryId = update.callbackQuery.id
