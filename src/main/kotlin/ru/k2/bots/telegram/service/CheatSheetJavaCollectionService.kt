@@ -22,17 +22,25 @@ class CheatSheetJavaCollectionService: Handler {
     override fun callbackHandler(update: Update): EditMessageText {
         return when (update.callbackQuery.data) {
             "/collection/value" -> value(update)
+            "/collection/value/noDuplicate" -> valueNotDuplicate(update)
+            "/collection/value/noDuplicate/search" -> valueNotDuplicatePrimarySearch(update)
+            "/collection/value/noDuplicate/search/order" -> valueNotDuplicatePrimaryTaskSearchAndOrder(update)
             "/collection/map" -> map(update)
-            "/collection/map/order" -> mapOrder(update)
+            "/collection/map/order" -> mapOrderOrNot(update)
             else -> EditMessageText() //todo продумать как отбработать
         }
     }
 
     fun successHandler(update: Update): AnswerCallbackQuery{
         return when (update.callbackQuery.data) {
-            "/result/collection/map/order/ordered" -> ordered(update)
-            "/result/collection/map/order/sorted" -> sorted(update)
+            "/result/collection/map/order/ordered" -> mapOrdered(update)
+            "/result/collection/map/order/sorted" -> mapSorted(update)
             "/result/collection/map/noOrder" -> mapNoOrder(update)
+            "/result/collection/value/duplicate" -> valueDuplicateOrNotDuplicateAndPrimaryTaskSearch(update)
+            "/result/collection/value/noDuplicate/noSearch" -> valueDuplicateOrNotDuplicateAndPrimaryTaskSearch(update)
+            "/result/collection/value/noDuplicate/search/noOrder" -> valueNotDuplicatePrimaryTaskSearchAndNotOrder(update)
+            "/result/collection/value/noDuplicate/search/ordered" -> valueNotDuplicatePrimaryTaskSearchAndOrdered(update)
+            "/result/collection/value/noDuplicate/search/sorted" -> valueNotDuplicatePrimaryTaskSearchAndSorted(update)
             else -> AnswerCallbackQuery() //todo продумать как отбработать
         }
     }
@@ -64,7 +72,7 @@ class CheatSheetJavaCollectionService: Handler {
                 .build()
     }
 
-    fun mapOrder(update: Update): EditMessageText{
+    fun mapOrderOrNot(update: Update): EditMessageText{
         return  EditMessageText.builder()
                 .messageId(update.callbackQuery.message.messageId)
                 .chatId(update.callbackQuery.message.chatId.toString())
@@ -87,7 +95,7 @@ class CheatSheetJavaCollectionService: Handler {
         return answerCallbackQuery
     }
 
-    fun sorted(update: Update): AnswerCallbackQuery{
+    fun mapSorted(update: Update): AnswerCallbackQuery{
         val answerCallbackQuery = AnswerCallbackQuery()
         answerCallbackQuery.callbackQueryId = update.callbackQuery.id
         answerCallbackQuery.text = "Используйте TreeMap"
@@ -96,7 +104,7 @@ class CheatSheetJavaCollectionService: Handler {
         return answerCallbackQuery
     }
 
-    fun ordered(update: Update): AnswerCallbackQuery{
+    fun mapOrdered(update: Update): AnswerCallbackQuery{
         val answerCallbackQuery = AnswerCallbackQuery()
         answerCallbackQuery.callbackQueryId = update.callbackQuery.id
         answerCallbackQuery.text = "Используйте LinkedHashMap"
@@ -112,11 +120,90 @@ class CheatSheetJavaCollectionService: Handler {
                 .text("Будут ли храниться дубликаты ?")
                 .replyMarkup(getInlineKeyboard(
                         mapOf(
-                                1 to mapOf("ДА" to "/collection/value/", "НЕТ" to "/collection/value"),
+                                1 to mapOf("ДА" to "/result/collection/value/duplicate", "НЕТ" to "/collection/value/noDuplicate"),
                                 2 to mapOf("Back" to "/back")
                         )
                 ))
                 .build()
+    }
+
+    private fun valueNotDuplicate(update: Update): EditMessageText {
+        return  EditMessageText.builder()
+                .messageId(update.callbackQuery.message.messageId)
+                .chatId(update.callbackQuery.message.chatId.toString())
+                .text("Будет ли часто просиходить поиск элементов для(содерит элемент/удаление элемента) ?")
+                .replyMarkup(getInlineKeyboard(
+                        mapOf(
+                                1 to mapOf("ДА" to "/collection/value/noDuplicate/search", "НЕТ" to "/result/collection/value/noDuplicate/noSearch"),
+                                2 to mapOf("Back" to "/back")
+                        )
+                ))
+                .build()
+    }
+
+    private fun valueNotDuplicatePrimarySearch(update: Update): EditMessageText {
+        return  EditMessageText.builder()
+                .messageId(update.callbackQuery.message.messageId)
+                .chatId(update.callbackQuery.message.chatId.toString())
+                .text("Важен ли порядок ?")
+                .replyMarkup(getInlineKeyboard(
+                        mapOf(
+                                1 to mapOf("ДА" to "/collection/value/noDuplicate/search/order", "НЕТ" to "/result/collection/value/noDuplicate/search/noOrder"),
+                                2 to mapOf("Back" to "/back")
+                        )
+                ))
+                .build()
+    }
+
+
+    private fun valueNotDuplicatePrimaryTaskSearchAndNotOrder(update: Update): AnswerCallbackQuery {
+        val answerCallbackQuery = AnswerCallbackQuery()
+        answerCallbackQuery.callbackQueryId = update.callbackQuery.id
+        answerCallbackQuery.text = "Используйте HashSet"
+        answerCallbackQuery.showAlert = true
+
+        return answerCallbackQuery
+    }
+
+    private fun valueNotDuplicatePrimaryTaskSearchAndOrder(update: Update): EditMessageText{
+        return  EditMessageText.builder()
+                .messageId(update.callbackQuery.message.messageId)
+                .chatId(update.callbackQuery.message.chatId.toString())
+                .text("Соблюдать порядок вставки или сортировать по значению ?")
+                .replyMarkup(getInlineKeyboard(
+                        mapOf(
+                                1 to mapOf("Соблюдать порядок" to "/result/collection/value/noDuplicate/search/ordered", "Сортировать" to "/result/collection/value/noDuplicate/search/sorted"),
+                                2 to mapOf("Back" to "/back")
+                        )
+                ))
+                .build()
+    }
+
+    private fun valueNotDuplicatePrimaryTaskSearchAndSorted(update: Update): AnswerCallbackQuery {
+        val answerCallbackQuery = AnswerCallbackQuery()
+        answerCallbackQuery.callbackQueryId = update.callbackQuery.id
+        answerCallbackQuery.text = "Используйте TreeSet"
+        answerCallbackQuery.showAlert = true
+
+        return answerCallbackQuery
+    }
+
+    private fun valueNotDuplicatePrimaryTaskSearchAndOrdered(update: Update): AnswerCallbackQuery {
+        val answerCallbackQuery = AnswerCallbackQuery()
+        answerCallbackQuery.callbackQueryId = update.callbackQuery.id
+        answerCallbackQuery.text = "Используйте LinkedHashSet"
+        answerCallbackQuery.showAlert = true
+
+        return answerCallbackQuery
+    }
+
+    private fun valueDuplicateOrNotDuplicateAndPrimaryTaskSearch(update: Update): AnswerCallbackQuery {
+        val answerCallbackQuery = AnswerCallbackQuery()
+        answerCallbackQuery.callbackQueryId = update.callbackQuery.id
+        answerCallbackQuery.text = "Используйте ArrayList"
+        answerCallbackQuery.showAlert = true
+
+        return answerCallbackQuery
     }
 
     private fun getInlineKeyboard(buttonValue: Map<Int, Map<String, String>>): InlineKeyboardMarkup {
