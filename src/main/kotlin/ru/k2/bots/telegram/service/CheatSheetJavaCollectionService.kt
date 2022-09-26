@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
-import ru.k2.bots.telegram.service.handlers.Handler
+import ru.k2.bots.telegram.handlers.Handler
 
 @Service
 class CheatSheetJavaCollectionService: Handler {
@@ -45,7 +45,7 @@ class CheatSheetJavaCollectionService: Handler {
         }
     }
 
-    fun start(chatId: String): SendMessage {
+    private fun start(chatId: String): SendMessage {
         val message = SendMessage()
         message.chatId = chatId
         message.text = "Выбери что будет содержать коллекция"
@@ -58,7 +58,7 @@ class CheatSheetJavaCollectionService: Handler {
         return message
     }
 
-    fun map(update: Update): EditMessageText {
+    private fun map(update: Update): EditMessageText {
         return  EditMessageText.builder()
                 .messageId(update.callbackQuery.message.messageId)
                 .chatId(update.callbackQuery.message.chatId.toString())
@@ -72,7 +72,7 @@ class CheatSheetJavaCollectionService: Handler {
                 .build()
     }
 
-    fun mapOrderOrNot(update: Update): EditMessageText{
+    private fun mapOrderOrNot(update: Update): EditMessageText{
         return  EditMessageText.builder()
                 .messageId(update.callbackQuery.message.messageId)
                 .chatId(update.callbackQuery.message.chatId.toString())
@@ -86,7 +86,7 @@ class CheatSheetJavaCollectionService: Handler {
                 .build()
     }
 
-    fun mapNoOrder(update: Update): AnswerCallbackQuery{
+    private fun mapNoOrder(update: Update): AnswerCallbackQuery{
         val answerCallbackQuery = AnswerCallbackQuery()
         answerCallbackQuery.callbackQueryId = update.callbackQuery.id
         answerCallbackQuery.text = "Используйте HashMap"
@@ -95,7 +95,7 @@ class CheatSheetJavaCollectionService: Handler {
         return answerCallbackQuery
     }
 
-    fun mapSorted(update: Update): AnswerCallbackQuery{
+    private fun mapSorted(update: Update): AnswerCallbackQuery{
         val answerCallbackQuery = AnswerCallbackQuery()
         answerCallbackQuery.callbackQueryId = update.callbackQuery.id
         answerCallbackQuery.text = "Используйте TreeMap"
@@ -104,7 +104,7 @@ class CheatSheetJavaCollectionService: Handler {
         return answerCallbackQuery
     }
 
-    fun mapOrdered(update: Update): AnswerCallbackQuery{
+    private fun mapOrdered(update: Update): AnswerCallbackQuery{
         val answerCallbackQuery = AnswerCallbackQuery()
         answerCallbackQuery.callbackQueryId = update.callbackQuery.id
         answerCallbackQuery.text = "Используйте LinkedHashMap"
@@ -113,7 +113,7 @@ class CheatSheetJavaCollectionService: Handler {
         return answerCallbackQuery
     }
 
-    fun value(update: Update): EditMessageText{
+    private fun value(update: Update): EditMessageText{
         return  EditMessageText.builder()
                 .messageId(update.callbackQuery.message.messageId)
                 .chatId(update.callbackQuery.message.chatId.toString())

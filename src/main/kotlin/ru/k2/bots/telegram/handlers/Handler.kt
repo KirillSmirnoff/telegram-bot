@@ -1,4 +1,4 @@
-package ru.k2.bots.telegram.service.handlers
+package ru.k2.bots.telegram.handlers
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
